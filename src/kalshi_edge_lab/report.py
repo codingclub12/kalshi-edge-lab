@@ -41,17 +41,47 @@ def load_settled(conn: sqlite3.Connection) -> list[sqlite3.Row]:
         "SELECT c.id, c.rfq_yes_price AS price, c.taker_fee_per_contract AS fee,"
         " c.builder_payout_multiple AS builder_x, s.result"
         " FROM combos c JOIN settlements s ON s.combo_id = c.id"
-        " WHERE c.rfq_yes_price IS NOT NULL AND c.status != 'expired'"
+        " WHERE c.rfq_yes_price IS NOT NULL AND c.status NOT IN ('expired', 'ungateable')"
         " ORDER BY c.id"
     ).fetchall()
 
 
-def build_report(rows: list[sqlite3.Row]) -> str:
+def load_ungateable(conn: sqlite3.Connection) -> list[sqlite3.Row]:
+    """Settled combos that could not be gated on an executable price."""
+    return conn.execute(
+        "SELECT c.id, c.builder_payout_multiple AS builder_x, s.result"
+        " FROM combos c JOIN settlements s ON s.combo_id = c.id"
+        " WHERE c.status = 'ungateable' ORDER BY c.id"
+    ).fetchall()
+
+
+def ungateable_section(rows: list[sqlite3.Row]) -> list[str]:
+    """Selection-bias check: how did combos we could not price do?"""
+    if not rows:
+        return []
+    hits = sum(1 for r in rows if r["result"] == "win")
+    lines = ["", f"Ungateable combos (no executable price), settled: {len(rows)}, hits: {hits}"]
+    implied = [1 / r["builder_x"] for r in rows if r["builder_x"]]
+    if implied:
+        lines.append(
+            f"    expected hits at builder-implied probability: {sum(implied):.2f} "
+            f"(builder price only, not executable, so this is a rough guide)"
+        )
+    lines.append(
+        "    Compare with the gated combos above: a big gap hints that gating on "
+        "executable price filters the sample."
+    )
+    return lines
+
+
+def build_report(rows: list[sqlite3.Row], ungateable: list[sqlite3.Row] | None = None) -> str:
+    extra = ungateable_section(ungateable or [])
     n = len(rows)
     lines = ["Calibration report (paper log, one contract per combo at the executable price)"]
     if n == 0:
         lines.append("No settled combos with an executable price yet.")
         lines.append(f"Target is {TARGET_N}+ settled combos before drawing any conclusion.")
+        lines += extra
         return "\n".join(lines)
 
     probs = [r["price"] for r in rows]
@@ -110,4 +140,5 @@ def build_report(rows: list[sqlite3.Row]) -> str:
         "Hits above the price are necessary, not sufficient: at a fair price the fee still "
         "makes a loss the default outcome."
     )
+    lines += extra
     return "\n".join(lines)

@@ -157,7 +157,7 @@ def cmd_settle(conn, args, base: str, user_agent: str) -> int:
 
 
 def cmd_report(conn, args) -> int:
-    print(report.build_report(report.load_settled(conn)))
+    print(report.build_report(report.load_settled(conn), report.load_ungateable(conn)))
     return 0
 
 

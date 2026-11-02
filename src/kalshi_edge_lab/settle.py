@@ -92,7 +92,8 @@ def settle_combo(conn: sqlite3.Connection, combo_id: int, fetch: Fetcher, base: 
 def unsettled_ids(conn: sqlite3.Connection, today: str) -> list[int]:
     rows = conn.execute(
         "SELECT c.id FROM combos c LEFT JOIN settlements s ON s.combo_id = c.id"
-        " WHERE s.id IS NULL AND c.status IN ('priced', 'bought') AND c.game_date <= ?"
+        " WHERE s.id IS NULL AND c.status IN ('priced', 'bought', 'ungateable')"
+        " AND c.game_date <= ?"
         " ORDER BY c.id",
         (today,),
     ).fetchall()

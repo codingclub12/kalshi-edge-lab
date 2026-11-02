@@ -66,3 +66,16 @@ def test_luck_direction_flips_with_result(conn):
     text = report.build_report(report.load_settled(conn))
     assert "this many or more hits" in text
     assert "not the probability that an edge exists" in text
+
+
+def test_ungateable_kept_out_of_main_stats_but_shown(conn):
+    gated = add_combo(conn, [("Auston Matthews", 2)], price=0.25, fee=0.01)
+    ung = add_combo(conn, [("Auston Matthews", 2)], price=0.25, status="ungateable", builder_x=10)
+    settle_row(conn, gated, "loss")
+    settle_row(conn, ung, "win")
+    rows = report.load_settled(conn)
+    assert [r["id"] for r in rows] == [gated]
+    text = report.build_report(rows, report.load_ungateable(conn))
+    assert "Settled combos:            1" in text
+    assert "Ungateable combos (no executable price), settled: 1, hits: 1" in text
+    assert "0.10" in text

@@ -88,3 +88,9 @@ def test_unsettled_ids_skips_future_expired_and_done(conn, box, schedule):
     done = add_combo(conn, [("Auston Matthews", 2)])
     settle.settle_combo(conn, done, make_fetch(box, schedule), BASE)
     assert settle.unsettled_ids(conn, "2026-11-02") == [a]
+
+
+def test_ungateable_combos_are_settled_too(conn, box, schedule):
+    cid = add_combo(conn, [("Auston Matthews", 2)], status="ungateable")
+    assert settle.unsettled_ids(conn, "2026-11-02") == [cid]
+    assert settle.settle_combo(conn, cid, make_fetch(box, schedule), BASE).endswith("win")

@@ -71,6 +71,8 @@ edge-lab report                     # calibration report
 `record-buy` only writes down a purchase you made yourself somewhere else. It refuses stakes
 above `MAX_STAKE_USD`.
 
+`settle` also covers `ungateable` combos, so you can compare them with the gated ones.
+
 `settle` needs the network (the public NHL stats API). A combo is a win only if every leg's
 player has at least the stated points. If any leg missed, it is a loss. If a player is not in
 the box score and nothing else missed, the combo is left open for you to look at, because a
