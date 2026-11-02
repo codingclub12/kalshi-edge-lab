@@ -1,0 +1,35 @@
+{
+  "id": 2026020100,
+  "gameDate": "2026-11-01",
+  "gameState": "OFF",
+  "awayTeam": {"abbrev": "TOR", "commonName": {"default": "Maple Leafs"}},
+  "homeTeam": {"abbrev": "BOS", "commonName": {"default": "Bruins"}},
+  "playerByGameStats": {
+    "awayTeam": {
+      "forwards": [
+        {"playerId": 1, "name": {"default": "A. Matthews"}, "position": "C", "goals": 1, "assists": 1, "points": 2},
+        {"playerId": 2, "name": {"default": "M. Marner"}, "position": "R", "goals": 0, "assists": 2, "points": 2},
+        {"playerId": 3, "name": {"default": "J. Tavares"}, "position": "C", "goals": 0, "assists": 1, "points": 1},
+        {"playerId": 4, "name": {"default": "T. Stützle"}, "position": "C", "goals": 0, "assists": 0, "points": 0}
+      ],
+      "defense": [
+        {"playerId": 5, "name": {"default": "M. Rielly"}, "position": "D", "goals": 0, "assists": 1, "points": 1}
+      ],
+      "goalies": [
+        {"playerId": 6, "name": {"default": "J. Woll"}, "position": "G", "saves": 28}
+      ]
+    },
+    "homeTeam": {
+      "forwards": [
+        {"playerId": 11, "name": {"default": "D. Pastrnak"}, "position": "R", "goals": 1, "assists": 0, "points": 1},
+        {"playerId": 12, "name": {"default": "B. Marchand"}, "position": "L", "goals": 0, "assists": 0, "points": 0}
+      ],
+      "defense": [
+        {"playerId": 13, "name": {"default": "C. McAvoy"}, "position": "D", "goals": 1, "assists": 1, "points": 2}
+      ],
+      "goalies": [
+        {"playerId": 14, "name": {"default": "J. Swayman"}, "position": "G", "saves": 30}
+      ]
+    }
+  }
+}

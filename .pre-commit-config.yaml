@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: repo-hygiene
+        name: block key-shaped strings and data files
+        entry: python scripts/check_repo_hygiene.py
+        language: system
+        pass_filenames: true
+      - id: ruff-check
+        name: ruff check
+        entry: ruff check
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format --check
+        entry: ruff format --check
+        language: system
+        types: [python]
