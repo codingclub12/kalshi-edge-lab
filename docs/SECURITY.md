@@ -8,7 +8,9 @@ This repository is public. Treat everything committed to it as readable by anyon
 - No key is ever pasted into a chat, an issue, a pull request, or a log.
 - No key is ever stored in this repo's files, including `config.yaml`, which is gitignored
   anyway. `config.example.yaml` holds placeholders only.
-- Phase 0 needs no credentials at all. The NHL stats API is public and unauthenticated.
+- Phase 0 paper logging needs no credentials. The NHL stats API is public and unauthenticated.
+  The Phase 0b quote collector reads Kalshi keys from environment variables only, and its client
+  is allowlisted to read-only calls plus RFQ create, read and delete.
 - If a later phase needs a key (for example The Odds API, or Kalshi), it lives only in the OS
   secret store or in an environment variable on Tanner's own machine. Code reads it from the
   environment at run time and never writes it anywhere.

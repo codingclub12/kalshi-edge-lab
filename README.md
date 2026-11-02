@@ -15,9 +15,12 @@ This repo currently does paper logging and nothing else.
 - It records priced combos in a local SQLite file.
 - It settles them from the free public NHL stats API once games finish.
 - It prints a calibration report.
-- It has **no Kalshi client and no code that places orders**. `DRY_RUN` is `True` and
-  `MAX_STAKE_USD` is `1` in `src/kalshi_edge_lab/safety.py`, and a test checks that nothing in
-  `src/` imports or defines an order-placement function.
+- Phase 0b adds a **read-only** Kalshi quote collector (`src/kalshi_edge_lab/kalshi_client.py`).
+  It can read public market data, create a combo market, and create, read and delete an RFQ.
+  It has **no code that accepts a quote, places an order, or touches a portfolio**. The client
+  refuses any method and path outside a fixed allowlist, tests assert that, and a test scans
+  `src/` for accept and order endpoints. `DRY_RUN` is `True` and `MAX_STAKE_USD` is `1` in
+  `src/kalshi_edge_lab/safety.py`.
 
 The edge is judged on the executable (RFQ) price plus the taker fee, compared with an estimated
 true probability. It is not judged on a ratio to FanDuel, because the builder price shown on
@@ -77,6 +80,42 @@ above `MAX_STAKE_USD`.
 player has at least the stated points. If any leg missed, it is a loss. If a player is not in
 the box score and nothing else missed, the combo is left open for you to look at, because a
 scratched player may mean a voided leg rather than a loss.
+
+## Quote collector (Phase 0b)
+
+Credentials come from the environment only (`KALSHI_API_KEY_ID`, `KALSHI_PRIVATE_KEY`; PEM or
+bare base64 DER, RSA-PSS or Ed25519). They are never printed, logged or written to a file.
+
+```
+python scripts/run_collector.py LINEUPS.json /path/outside/repo/paper.sqlite
+```
+
+`LINEUPS.json` and the database must live outside the repo (the script refuses otherwise),
+because this repo is public and data must not go in it. For each team it prices up to three
+3-leg "2+ points" combos (top two forward lines, and 2 forwards plus 1 defenseman from PP1),
+at most 40 RFQs per run, each sized to about $1 or less. The best executable Yes is
+`1 - highest no_bid`; the multiple is `1 / Yes`; the fee is `0.07 x price x (1 - price)`. Every
+RFQ is deleted after its quotes are read. Combos with an unclear or missing player, or no
+defenseman on PP1, are logged `held` with a reason; failures are logged `error`. Quotes move
+minute to minute, so a logged price is a snapshot, not a standing offer.
+
+Export for a spreadsheet: `edge-lab --db PATH export-csv /path/outside/repo/combos.csv`.
+
+## Settle workflow (after games end)
+
+The paper log lives in a private Google Sheet ("Kalshi Paper Log", tab `Combos`), not in the repo.
+
+1. In the sheet use File, Download, Comma Separated Values (current sheet) to get the Combos tab.
+2. `edge-lab settle-csv ~/Downloads/combos.csv /path/outside/repo/settled.csv`
+   This reads the legs and game from each `priced` row with a blank `result`, checks the NHL
+   box scores (needs network), and writes the same CSV with `result` filled in as `win` or
+   `loss`. A game that is not final, or a player missing from the box score, is left blank and
+   the reason is printed.
+3. Paste the `result` column of `settled.csv` back into the sheet.
+
+If you keep the local SQLite file instead, `edge-lab --db PATH settle` does the same thing
+directly. The sheet is read and written by hand (download and paste), not by code, so no
+Google credentials are needed here.
 
 ## The report
 

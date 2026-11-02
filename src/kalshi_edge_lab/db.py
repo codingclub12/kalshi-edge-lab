@@ -22,8 +22,13 @@ CREATE TABLE IF NOT EXISTS combos (
     -- American odds, as displayed.
     fanduel_sgp_american INTEGER,
     status TEXT NOT NULL DEFAULT 'priced'
-        CHECK (status IN ('priced', 'bought', 'expired', 'ungateable')),
-    notes TEXT
+        CHECK (status IN ('priced', 'bought', 'expired', 'ungateable', 'held', 'error')),
+    notes TEXT,
+    puck_time_ct TEXT,
+    lineup_source TEXT,
+    lineup_fetched_at TEXT,
+    combo_market_ticker TEXT,
+    exec_payout_multiple REAL
 );
 
 CREATE TABLE IF NOT EXISTS legs (

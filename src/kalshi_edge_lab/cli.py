@@ -4,14 +4,14 @@ import argparse
 import sys
 from datetime import UTC, date, datetime
 
-from . import report, settle
+from . import export, report, settle
 from .config import load_config
 from .db import connect
 from .fees import taker_fee
 from .nhl import fetch_json, parse_game_ref
 from .safety import MAX_STAKE_USD
 
-STATUSES = ("priced", "bought", "expired", "ungateable")
+STATUSES = ("priced", "bought", "expired", "ungateable", "held", "error")
 
 
 def _now() -> str:
@@ -156,6 +156,20 @@ def cmd_settle(conn, args, base: str, user_agent: str) -> int:
     return 0
 
 
+def cmd_export_csv(conn, args) -> int:
+    print(f"wrote {export.write_csv(conn, args.path)}")
+    return 0
+
+
+def cmd_settle_csv(args, base: str, user_agent: str) -> int:
+    def fetch(url: str) -> dict:
+        return fetch_json(url, user_agent)
+
+    for line in export.settle_csv(args.input, args.output, fetch, base):
+        print(line)
+    return 0
+
+
 def cmd_report(conn, args) -> int:
     print(report.build_report(report.load_settled(conn), report.load_ungateable(conn)))
     return 0
@@ -216,12 +230,21 @@ def build_parser() -> argparse.ArgumentParser:
     se.add_argument("--today", help="override today's date, YYYY-MM-DD")
 
     sub.add_parser("report", help="calibration report for settled combos")
+
+    ex = sub.add_parser("export-csv", help="write all combos to a CSV outside the repo")
+    ex.add_argument("path")
+
+    sc = sub.add_parser("settle-csv", help="settle a CSV downloaded from the sheet")
+    sc.add_argument("input")
+    sc.add_argument("output")
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     cfg = load_config(args.config)
+    if args.command == "settle-csv":
+        return cmd_settle_csv(args, cfg["nhl_api_base"], cfg["user_agent"])
     conn = connect(args.db or cfg["db_path"])
     try:
         if args.command == "init-db":
@@ -235,6 +258,7 @@ def main(argv: list[str] | None = None) -> int:
             "status": cmd_status,
             "list": cmd_list,
             "report": cmd_report,
+            "export-csv": cmd_export_csv,
         }[args.command]
         return handler(conn, args)
     finally:
