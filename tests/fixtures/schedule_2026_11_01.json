@@ -1,0 +1,11 @@
+{
+  "gameWeek": [
+    {"date": "2026-10-31", "games": [
+      {"id": 2026020090, "gameState": "OFF", "awayTeam": {"abbrev": "TOR"}, "homeTeam": {"abbrev": "MTL"}}
+    ]},
+    {"date": "2026-11-01", "games": [
+      {"id": 2026020100, "gameState": "OFF", "awayTeam": {"abbrev": "TOR"}, "homeTeam": {"abbrev": "BOS"}},
+      {"id": 2026020101, "gameState": "OFF", "awayTeam": {"abbrev": "NYR"}, "homeTeam": {"abbrev": "NJD"}}
+    ]}
+  ]
+}

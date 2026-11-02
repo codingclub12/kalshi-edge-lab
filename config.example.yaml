@@ -1,0 +1,11 @@
+# Copy to config.yaml (which is gitignored) and edit. Placeholders only.
+# Never put an API key or secret in this file. See docs/SECURITY.md.
+
+# SQLite file. Keep it under data/, which is gitignored.
+db_path: data/edge_lab.sqlite
+
+# Public NHL stats API (no key needed).
+nhl_api_base: https://api-web.nhle.com/v1
+
+# Sent with NHL requests so the traffic is identifiable.
+user_agent: "kalshi-edge-lab-research/0.1 (contact: your-email-here)"
