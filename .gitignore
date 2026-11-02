@@ -1,0 +1,28 @@
+# Data and logs never go in this repo (public).
+data/
+logs/
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.csv
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+config.yaml
+
+# Python and tooling
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
